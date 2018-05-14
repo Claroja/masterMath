@@ -1,0 +1,260 @@
+<html>
+<style>
+.axis path,
+.axis line{
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+svg {
+	display:inline-block;
+}
+</style>
+<body>
+	<script src="https://cdn.bootcss.com/d3/3.5.17/d3.min.js"></script>
+	<script src="./axis.js"></script>
+	<svg id=zero width=300 height =300 ></svg>
+<script>
+
+svg=d3.select('svg')
+width=svg.attr('width')
+height=svg.attr('height')
+
+var xs = d3.scale.linear()
+        .domain([-10, 10])
+        .range([0, width]);
+		
+var ys = d3.scale.linear()
+        .domain([-10, 10])
+        .range([height,0]);
+
+
+	
+ten=new Array(20).fill(10)
+nten=new Array(20).fill(-10)
+other = d3.range(-10,11)
+
+
+k=Math.sqrt(2)/2
+
+hl0 = d3.zip(nten,other,ten,other)
+hl1 = hl0.map(d=>[d[0]+2*d[1],2*d[1],d[2]+2*d[3],2*d[3]]) //水平线
+hl=d3.zip(hl0,hl1)
+svg.selectAll('line[class=hl]') //原始横坐标
+	.data(hl)
+	.enter()
+	.append('line')  //添加y轴
+	.attr({
+		"x1":d=>xs(d[0][0]),
+		"y1":d=>ys(d[0][1]),
+		"x2":d=>xs(d[0][2]),
+		"y2":d=>ys(d[0][3]),
+		"stroke":'black',
+		"class":'hl',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+
+
+
+svg.selectAll('line[class=hl0]')  //变换后的横坐标
+	.data(hl)
+	.enter()
+	.append('line')  //添加y轴
+	.attr({
+		"x1":d=>xs(d[0][0]),
+		"y1":d=>ys(d[0][1]),
+		"x2":d=>xs(d[0][2]),
+		"y2":d=>ys(d[0][3]),
+		"stroke":'black',
+		"class":'hl0',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+	.transition()
+	.duration(2500)
+	.attr({
+		"x1":d=>xs(d[1][0]),
+		"y1":d=>ys(d[1][1]),
+		"x2":d=>xs(d[1][2]),
+		"y2":d=>ys(d[1][3]),
+		"stroke":'red',
+		"class":'hl0',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+	
+vl0 = d3.zip(other,nten,other,ten)
+// vl1 = vl0.map(d=>[-d[1],d[0],-d[3],d[2]])  //旋转90度
+vl1 = vl0.map(d=>[d[0]+2*d[1],2*d[1],d[2]+2*d[3],2*d[3]])  //垂直线
+vl = d3.zip(vl0,vl1)
+svg.selectAll('line[class=vl]') //原始横坐标
+	.data(vl)
+	.enter()
+	.append('line')  //添加y轴
+	.attr({
+		"x1":d=>xs(d[0][0]),
+		"y1":d=>ys(d[0][1]),
+		"x2":d=>xs(d[0][2]),
+		"y2":d=>ys(d[0][3]),
+		"stroke":'black',
+		"class":'vl',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+
+svg.selectAll('line[class=vl0]') //变换之后的横坐标
+	.data(vl)
+	.enter()
+	.append('line')  //添加y轴
+	.attr({
+		"x1":d=>xs(d[0][0]),
+		"y1":d=>ys(d[0][1]),
+		"x2":d=>xs(d[0][2]),
+		"y2":d=>ys(d[0][3]),
+		"stroke":'black',
+		"class":'vl0',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+	.transition()
+	.duration(2500)
+	.attr({
+		"x1":d=>xs(d[1][0]),
+		"y1":d=>ys(d[1][1]),
+		"x2":d=>xs(d[1][2]),
+		"y2":d=>ys(d[1][3]),
+		"stroke":'red',
+		"class":'vl0',
+		'opacity':function(d,i){if(i==10){return 1}else{return 0.2}},
+	})
+
+
+//初始化
+
+
+
+x=d3.range(-100,100) // 圆
+x=x.map(d=>d/100)
+y=x.map(d=>Math.sqrt(1-d*d))
+data1=d3.zip(x,y)  //上半圆
+y_neg=x.map(d=>-Math.sqrt(1-d*d))
+data2=d3.zip(x,y_neg).reverse()  //下半圆
+data_c0=data1.concat(data2) 
+
+var line_f = d3.svg.line()
+			.x(d=>xs(d[0]))
+			.y(d=>ys(d[1]))
+			.interpolate('linear')
+
+circle0 = svg.append('path')
+	.attr('d',line_f(data_c0))
+	.attr("stroke", "blue")
+	.attr("stroke-width", 2)
+	.attr("fill", "none")
+	.attr('class','circle')
+
+data_ji0=[[0,0,1,0],[0,0,0,1]]// 基向量
+ji0 = svg.selectAll('line[class=ji]')
+	.data(data_ji0)
+	.enter()
+	.append('line')
+	.attr({
+		'x1':d=>xs(d[0]),
+		'y1':d=>ys(d[1]),
+		'x2':d=>xs(d[2]),
+		'y2':d=>ys(d[3]),
+		'class':'ji',
+		"stroke":"blue"
+	})
+
+svd1 = [[-0.7071,-0.7071],[0.7071,-0.7071]]
+svd2 = [2.828,1.414]
+svd3 = [[0,1],[-1,0]]	
+	
+// 圆的变换
+// data_c1 = data_c0.map(d=>[(svd3[0][0]*d[0]+svd3[0][1]*d[1]),(svd3[1][0]*d[0]+svd3[1][1]*d[1])])
+// data_c2 = data_c1.map(d=>[svd2[0]*d[0],svd2[1]*d[1]])
+// data_c3 = data_c2.map(d=>[svd1[0][0]*d[0]+svd1[0][1]*d[1],svd1[1][0]*d[0]+svd1[1][1]*d[1]])
+// 
+// data=[data_c1,data_c2,data_c3]
+// circle1 = circle0
+// 	.transition()  //旋转
+// 	.duration(2500)
+// 	.attr('d',line_f(data[0]))
+// 	.transition()  //拉伸
+// 	.duration(2500)
+// 	.attr('d',line_f(data[1]))
+// 	.transition()    //旋转
+// 	.duration(2500)
+// 	.attr('d',line_f(data[2]))
+	
+// 基的变换
+
+data_ji1=data_ji0.map(d=>[0,0,svd3[0][0]*d[2]+svd3[0][1]*d[3],svd3[1][0]*d[2]+svd3[1][1]*d[3]])
+data_ji2=data_ji1.map(d=>[0,0,svd2[0]*d[2],svd2[1]*d[3]])
+data_ji3=data_ji2.map(d=>[0,0,svd1[0][0]*d[2]+svd1[0][1]*d[3],svd1[1][0]*d[2]+svd1[1][1]*d[3]])
+
+data_ji = d3.zip(data_ji1,data_ji2,data_ji3)
+
+
+ji1 = ji0
+	.data(data_ji)
+	.transition("ji")
+	.duration(2500)
+	.attr({
+		'x1':d=>xs(d[0][0]),
+		'y1':d=>ys(d[0][1]),
+		'x2':d=>xs(d[0][2]),
+		'y2':d=>ys(d[0][3]),
+	})
+	.transition("ji")
+	.duration(2500)
+	.attr({
+		'x1':d=>xs(d[1][0]),
+		'y1':d=>ys(d[1][1]),
+		'x2':d=>xs(d[1][2]),
+		'y2':d=>ys(d[1][3]),
+
+	})
+	.transition("ji")
+	.duration(2500)
+	.attr({
+		'x1':d=>xs(d[2][0]),
+		'y1':d=>ys(d[2][1]),
+		'x2':d=>xs(d[2][2]),
+		'y2':d=>ys(d[2][3]),
+	})	
+	
+
+	
+// svg.append('line')
+// 	.attr({
+// 		"x1":xs(0),
+// 		'y1':ys(0),
+// 		'x2':xs(1),
+// 		'y2':ys(0),
+// 		"stroke":'yellow'
+// 	})
+// 	
+// svg.append('line')
+// 	.attr({
+// 		"x1":xs(0),
+// 		'y1':ys(0),
+// 		'x2':xs(0.89442791),
+// 		'y2':ys(0.4472136),
+// 		"stroke":'yellow'
+// 	})
+// 	.transition()
+// 	.duration(2500)
+// 	.attr({
+// 		"x1":xs(0),
+// 		'y1':ys(0),
+// 		'x2':xs(0.89442791+2*0.4472136),
+// 		'y2':ys(2*0.4472136),
+// 		"stroke":'yellow'
+// 	})
+	
+</script>
+</body>
+</html>
